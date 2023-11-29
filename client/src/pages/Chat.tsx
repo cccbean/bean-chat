@@ -1,5 +1,8 @@
-import { useEffect } from "react";
-import { io } from "socket.io-client";
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
+import Menu from '../components/Menu';
+import Sidebar from '../components/Sidebar';
+import Chatbox from '../components/Chatbox';
 
 type Props = {
 	token: string;
@@ -11,16 +14,18 @@ function Chat({ token }: Props) {
 			token,
 		},
 	});
-  
-  useEffect(() => {
-    socket.on('hola', (data) => {
-      console.log(data);
-    })
-  }, [])
+
+	useEffect(() => {
+		socket.on('hola', (data) => {
+			console.log(data);
+		});
+	}, []);
 
 	return (
 		<div className="flex h-screen overflow-hidden">
-			
+			<Menu />
+			<Sidebar />
+			<Chatbox />
 		</div>
 	);
 }
