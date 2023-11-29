@@ -1,4 +1,10 @@
-function Menu() {
+import { User } from '../App';
+
+type Props = {
+	user: User;
+};
+
+function Menu({ user }: Props) {
 	return (
 		<div className="flex w-min flex-col justify-between border-r border-base-content p-2">
 			<div>
@@ -7,7 +13,7 @@ function Menu() {
 			</div>
 
 			<div>
-				<button className="btn">P</button>
+				<button className="btn">{user.username[0].toUpperCase()}</button>
 				<button className="btn">E</button>
 			</div>
 		</div>

@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { User } from '../App';
 
 type Props = {
-  setToken: React.Dispatch<React.SetStateAction<string>>
-}
+	setToken: React.Dispatch<React.SetStateAction<string>>;
+	setUser: React.Dispatch<React.SetStateAction<User>>;
+};
 
-function Login({setToken}:Props) {
+function Login({ setToken, setUser }: Props) {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
@@ -22,7 +24,9 @@ function Login({setToken}:Props) {
 			}
 			let data = await response.json();
 			console.log(data);
-      setToken(data.token);
+			console.log(data.user.username[0])
+			setToken(data.token);
+			setUser(data.user);
 		} catch (err) {
 			console.log(err);
 		}
@@ -63,7 +67,12 @@ function Login({setToken}:Props) {
 				<button className="btn btn-outline" type="submit">
 					Login
 				</button>
-				<div>Don't have an account? <Link className="link" to="/signup">Sign up</Link></div>
+				<div>
+					Don't have an account?{' '}
+					<Link className="link" to="/signup">
+						Sign up
+					</Link>
+				</div>
 			</form>
 		</>
 	);
