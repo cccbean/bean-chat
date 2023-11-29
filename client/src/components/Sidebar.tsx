@@ -1,6 +1,27 @@
+import { useEffect, useState } from 'react';
 import tempAvatar from '../assets/Luffy-pic.png';
+import { Socket } from 'socket.io-client';
 
-function Sidebar() {
+type Chat = {
+	name: string;
+	users: string[];
+};
+
+type Props = {
+	socket: Socket;
+};
+
+function Sidebar({ socket }: Props) {
+	const [chats, setChats] = useState<Chat[]>([
+		{ name: 'Monkey D. Luffy', users: ['rosa', 'Monkey D. Luffy'] },
+	]);
+
+	useEffect(() => {
+		socket.on('chats', (data) => {
+			console.log(data);
+		})
+	}, []);
+
 	return (
 		<div className="flex w-96 flex-col border-r border-base-content">
 			<div className="flex items-center justify-between p-4">
@@ -18,17 +39,19 @@ function Sidebar() {
 			</div>
 
 			<ul className="menu menu-vertical">
-				<li>
-					<div className="gap-4">
-						<div className="avatar indicator">
-							<span className="badge indicator-item badge-success badge-sm indicator-bottom -translate-x-[1px] -translate-y-[1px] border border-base-100"></span>
-							<div className="w-16 rounded-full">
-								<img src={tempAvatar} alt="Pic of Monkey D. Luffy" />
+				{chats.map((chat) => (
+					<li>
+						<div className="gap-4">
+							<div className="avatar indicator">
+								<span className="badge indicator-item badge-success badge-sm indicator-bottom -translate-x-[1px] -translate-y-[1px] border border-base-100"></span>
+								<div className="w-16 rounded-full">
+									<img src={tempAvatar} alt="Pic of Monkey D. Luffy" />
+								</div>
 							</div>
+							<p className="text-lg">{chat.name}</p>
 						</div>
-						<p className="text-lg">Monkey D. Luffy</p>
-					</div>
-				</li>
+					</li>
+				))}
 			</ul>
 		</div>
 	);

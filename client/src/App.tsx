@@ -1,13 +1,24 @@
-import { useState } from "react";
-import Login from "./pages/Login";
-import Chat from "./pages/Chat";
+import { useState } from 'react';
+import Login from './pages/Login';
+import Chat from './pages/Chat';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Signup from './pages/Signup';
 
 function App() {
-  const [token, setToken] = useState('');
+	const [token, setToken] = useState('');
 
 	return (
 		<>
-    {token === '' ? <Login setToken={setToken} /> : <Chat token={token} />}
+			<BrowserRouter>
+				<Routes>
+					{token === '' ? (
+						<Route path="/" element={<Login setToken={setToken} />} />
+					) : (
+						<Route path="/" element={<Chat token={token} />} />
+					)}
+					<Route path='/signup' element={<Signup />} />
+				</Routes>
+			</BrowserRouter>
 		</>
 	);
 }

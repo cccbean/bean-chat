@@ -32,6 +32,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// TODO: implement bcrypt
 app.post('/login', async (req, res, next) => {
 	try {
 		console.log(req.body);
@@ -57,6 +58,21 @@ app.post('/login', async (req, res, next) => {
 	}
 });
 
+// TODO: sanitize form data
+app.post('/signup', async (req, res, next) => {
+	try {
+		console.log(req.body);
+		const newUser = new User({
+			username: req.body.username,
+			password: req.body.password,
+		})
+		await newUser.save();
+		res.sendStatus(200);
+	} catch (err) {
+		next(err);
+	}
+})
+
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
@@ -81,4 +97,4 @@ io.on('connection', (socket) => {
 	socket.emit('hola', 'hi');
 });
 
-httpServer.listen(3000, () => console.log('server listening on port 3000'));
+httpServer.listen(3500, () => console.log('server listening on port 3500'));

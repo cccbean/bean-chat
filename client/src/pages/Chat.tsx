@@ -9,7 +9,7 @@ type Props = {
 };
 
 function Chat({ token }: Props) {
-	const socket = io('http://localhost:3000', {
+	const socket = io('http://localhost:3500', {
 		auth: {
 			token,
 		},
@@ -24,7 +24,7 @@ function Chat({ token }: Props) {
 	return (
 		<div className="flex h-screen overflow-hidden">
 			<Menu />
-			<Sidebar />
+			<Sidebar socket={socket} />
 			<Chatbox />
 		</div>
 	);

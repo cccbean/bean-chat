@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
-type Props = {
-  setToken: React.Dispatch<React.SetStateAction<string>>
-}
-
-function Login({setToken}:Props) {
+function Signup() {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
 
 	const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
 		e.preventDefault();
 		try {
-			const response = await fetch('http://localhost:3500/login', {
+			const response = await fetch('http://localhost:3500/signup', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username, password }),
@@ -22,7 +18,6 @@ function Login({setToken}:Props) {
 			}
 			let data = await response.json();
 			console.log(data);
-      setToken(data.token);
 		} catch (err) {
 			console.log(err);
 		}
@@ -30,7 +25,7 @@ function Login({setToken}:Props) {
 
 	return (
 		<>
-			<h1>Login</h1>
+			<h1>Signup</h1>
 			<form className="max-w-sm" onSubmit={onSubmitHandler}>
 				<div>
 					<label className="label" htmlFor="username">
@@ -60,13 +55,26 @@ function Login({setToken}:Props) {
 					/>
 				</div>
 
+        <div>
+					<label className="label" htmlFor="confirm-password">
+						<span className="label-text">Confirm Password</span>
+					</label>
+					<input
+						className="input input-bordered"
+						type="password"
+						id="confirm-password"
+						name="confirm-password"
+						value={confirmPassword}
+						onChange={(e) => setConfirmPassword(e.target.value)}
+					/>
+				</div>
+
 				<button className="btn btn-outline" type="submit">
-					Login
+					Signup
 				</button>
-				<div>Don't have an account? <Link className="link" to="/signup">Sign up</Link></div>
 			</form>
 		</>
 	);
 }
 
-export default Login;
+export default Signup;
