@@ -17,6 +17,7 @@ db.on('error', console.error.bind(console, 'mongo connection error'));
 
 const app = express();
 const User = require('./models/user');
+const Chat = require('./models/chat');
 
 // const createTempUser = async () => {
 //   const newUser = new User({
@@ -46,7 +47,7 @@ app.post('/login', async (req, res, next) => {
 		const secret = process.env.JWT_SECRET;
 		const token = jwt.sign(
 			{
-				userId: username,
+				userId: user._id,
 				user: username,
 			},
 			secret,
@@ -95,6 +96,36 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
 	socket.emit('hola', 'hi');
+
+	const chats = getUserChats(socket);
+	socket.emit('chats', chats);
+
+	socket.on('search-request', async (data) => {
+		console.log(data);
+		if (data === '') {
+			socket.emit('search-response', []);
+			return
+		}
+		const regex = new RegExp(data, 'i');
+		const users = await User.find({ username: regex }).sort({ username: 1 }).exec();
+		// TODO: error check
+		users.forEach((user) => user.password = undefined);
+		socket.emit('search-response', users)
+	})
+
+	socket.on('new-chat-request', async (data) => {
+		console.log(data);
+	})
 });
+
+async function getUserChats(socket) {
+	const token = socket.handshake.auth.token;
+	const secret = process.env.JWT_SECRET;
+	const decoded = jwt.verify(token, secret);
+	const chats = await Chat.find({users: decoded.userId}).exec();
+	// TODO: error check
+	console.log(chats);
+	return chats;
+}
 
 httpServer.listen(3500, () => console.log('server listening on port 3500'));
