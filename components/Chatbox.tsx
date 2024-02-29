@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { User } from '../App';
-import tempAvatar from '../assets/Luffy-pic.png';
 import { Message } from '../pages/Chat';
 import ChatBubble from './ChatBubble';
 import { Socket } from 'socket.io-client';
@@ -17,11 +16,16 @@ function Chatbox({ user, messages, setMessages, chatId, socket }: Props) {
 	const [newMessage, setNewMessage] = useState('');
 
 	useEffect(() => {
-		socket.on('help', (data) => {
+		socket.on('new-message', (data) => {
+      console.log('socket??')
 			console.log(data);
 			const newMessages = [...messages];
 			newMessages.push(data);
 			setMessages(newMessages);
+		});
+
+    socket.on('connect_error', (err) => {
+			console.log(err);
 		});
 	}, []);
 
@@ -32,7 +36,7 @@ function Chatbox({ user, messages, setMessages, chatId, socket }: Props) {
 			chat: chatId,
 			message: newMessage,
 		};
-		socket.emit('new-message-request', data);
+		socket.emit('new-message', data);
     setNewMessage('');
 	};
 

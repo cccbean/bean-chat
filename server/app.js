@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const mongoDb = process.env.DB_URL;
 mongoose.connect(mongoDb);
@@ -18,16 +19,18 @@ db.on('error', console.error.bind(console, 'mongo connection error'));
 const app = express();
 const User = require('./models/user');
 const Chat = require('./models/chat');
-const Message = require('./models/message')
+const Message = require('./models/message');
 
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 // TODO: implement bcrypt
 app.post('/login', async (req, res, next) => {
 	try {
+		console.log(req.cookies);
 		console.log(req.body);
 		const username = req.body.username;
 		const password = req.body.password;
@@ -35,7 +38,6 @@ app.post('/login', async (req, res, next) => {
 		if (!user) {
 			return res.json('user not found');
 		}
-
 		const secret = process.env.JWT_SECRET;
 		const token = jwt.sign(
 			{
@@ -46,7 +48,7 @@ app.post('/login', async (req, res, next) => {
 			{ expiresIn: '1h' }
 		);
 		user.password = undefined;
-		res.status(200).json({ token, user });
+		res.cookie('token', token, { maxAge: 900000, httpOnly: true });
 	} catch (err) {
 		next(err);
 	}
@@ -93,6 +95,10 @@ io.on('connection', async (socket) => {
 	const chats = await getUserChats(socket);
 	socket.emit('chats', chats);
 
+	socket.on('help', () => {
+		socket.emit('help', 'help is on the way!');
+	});
+
 	socket.on('search-request', async (data) => {
 		console.log(data);
 		if (data.query === '') {
@@ -102,7 +108,8 @@ io.on('connection', async (socket) => {
 		const myId = new mongoose.Types.ObjectId(data.myId);
 		const regex = new RegExp(data.query, 'i');
 		const users = await User.find({ username: regex })
-			.where('_id').ne(myId)
+			.where('_id')
+			.ne(myId)
 			.select('-password')
 			.sort({ username: 1 })
 			.exec();
@@ -129,13 +136,13 @@ io.on('connection', async (socket) => {
 
 	socket.on('get-chat-request', async (data) => {
 		// TODO: check to see if chatId contains userId?
-		const messages = await Message.find({chat: data.chatId}).sort({createdAt: 1}).exec();
+		const messages = await Message.find({ chat: data.chatId }).sort({ createdAt: 1 }).exec();
 		console.log('get-chat', messages, 'get chat');
-		socket.emit('get-chat-response', messages)
-	})
+		socket.emit('get-chat-response', messages);
+	});
 
-	socket.on('new-message-request', async (data) => {
-		console.log(data)
+	socket.on('new-message', async (data) => {
+		console.log(data);
 		const userId = new mongoose.Types.ObjectId(data.user);
 		const chatId = new mongoose.Types.ObjectId(data.chat);
 		const newMessage = new Message({
@@ -146,8 +153,8 @@ io.on('connection', async (socket) => {
 		await newMessage.save();
 		// TODO: handle error
 		console.log(newMessage);
-		socket.emit('help', newMessage);
-	})
+		socket.emit('new-message', newMessage);
+	});
 });
 
 async function getUserChats(socket) {

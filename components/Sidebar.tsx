@@ -60,7 +60,7 @@ function Sidebar({ user, socket, setMessages, setChatId }: Props) {
 					? chats.map((chat) => (
 							<li
 								key={chat._id}
-								onClick={(e) => {
+								onClick={() => {
 									setChatId(chat._id);
 									const data = {
 										myId: user._id,

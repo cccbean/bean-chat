@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User } from "../App";
+import { User } from "../client/src/App";
 import { Socket } from "socket.io-client";
 
 type Props = {

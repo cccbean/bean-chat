@@ -30,10 +30,15 @@ function Chat({ token, user }: Props) {
 		socket.on('hola', (data) => {
 			console.log(data);
 		});
+
+		socket.on('help', (data) => {
+			console.log(data);
+		})
 	}, []);
 
 	return (
 		<div className="flex h-screen overflow-hidden">
+			<button onClick={(e) => socket.emit('help')}>Help</button>
 			<Menu user={user} />
 			<Sidebar user={user} socket={socket} setMessages={setMessages} setChatId={setChatId} />
 			<Chatbox user={user} socket={socket} messages={messages} setMessages={setMessages} chatId={chatId} />
